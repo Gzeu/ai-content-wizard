@@ -14,7 +14,6 @@
 
 const { program } = require('commander');
 const chalk = require('chalk').default;
-const inquirer = require('inquirer');
 const ora = require('ora').default;
 const fs = require('fs-extra');
 const path = require('path');
