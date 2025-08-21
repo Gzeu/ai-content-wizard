@@ -4,6 +4,9 @@ const { Groq } = require('../ai-provider');
 // Mock the actual API calls to avoid hitting the real API during tests
 const sinon = require('sinon');
 
+// Import and run the test setup
+require('./setup')();
+
 describe('AI Provider', () => {
   let groq;
   let sandbox;
