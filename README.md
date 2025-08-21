@@ -24,22 +24,24 @@ A high-performance CLI tool for AI-powered content generation using Groq's ultra
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Gzeu/ai-content-wizard.git
-   cd ai-content-wizard
-   ```
+#### As a global CLI tool (recommended):
+```bash
+npm install -g ai-content-wizard
+```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+#### For development:
+```bash
+# Clone the repository
+git clone https://github.com/Gzeu/ai-content-wizard.git
+cd ai-content-wizard
 
-3. **Configure environment**
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and add your Groq API key.
+# Install dependencies
+npm install
+
+# Set up environment
+cp .env.example .env
+# Edit .env and add your Groq API key
+```
 
 ## 🛠️ Usage
 
@@ -47,16 +49,16 @@ A high-performance CLI tool for AI-powered content generation using Groq's ultra
 
 ```bash
 # Generate content with default settings
-node src/cli.js generate "Your prompt here"
+ai-wizard generate "Your prompt here"
 
 # Generate with custom parameters
-node src/cli.js generate --temperature 0.9 --max-tokens 500 "Your prompt"
+ai-wizard generate --temperature 0.9 --max-tokens 500 "Your prompt"
 
 # List available models
-node src/cli.js models
+ai-wizard models
 
 # Get help
-node src/cli.js --help
+ai-wizard --help
 ```
 
 ### Available Models
