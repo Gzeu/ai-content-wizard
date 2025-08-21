@@ -10,11 +10,36 @@
   "scripts": {
     "start": "node src/cli.js",
     "dev": "node --watch src/cli.js",
-    "test": "node test-app.js",
+    "test": "mocha test/**/*.test.js --timeout 10000",
+    "test:watch": "mocha --watch test/**/*.test.js",
     "test:debug": "DEBUG_GROQ=true node test-app.js",
+    "test:coverage": "nyc --reporter=text mocha test/**/*.test.js",
+    "coverage": "nyc --reporter=lcov --reporter=text mocha test/**/*.test.js",
+    "coverage:report": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "lint": "eslint src/**.js",
     "format": "prettier --write \"**/*.{js,json,md}\"",
     "build": "pkg . --out-path dist"
+  },
+  "nyc": {
+    "all": true,
+    "include": [
+      "src/**/*.js"
+    ],
+    "exclude": [
+      "**/*.test.js",
+      "**/test/**",
+      "**/node_modules/**"
+    ],
+    "reporter": [
+      "text",
+      "lcov",
+      "clover"
+    ],
+    "check-coverage": true,
+    "branches": 80,
+    "lines": 80,
+    "functions": 80,
+    "statements": 80
   },
   "keywords": [
     "ai",
@@ -45,17 +70,28 @@
     "ora": "^7.0.0"
   },
   "devDependencies": {
+    "chai": "^4.3.7",
+    "codecov": "^3.8.2",
     "eslint": "^8.56.0",
-    "prettier": "^3.1.1",
     "jest": "^29.7.0",
-    "pkg": "^5.8.0"
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "pkg": "^5.8.0",
+    "prettier": "^3.0.0",
+    "sinon": "^15.2.0"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "pkg": {
     "outputPath": "dist",
-    "targets": ["node18-linux-x64", "node18-macos-x64", "node18-win-x64"],
-    "assets": [".env"]
+    "targets": [
+      "node18-linux-x64",
+      "node18-macos-x64",
+      "node18-win-x64"
+    ],
+    "assets": [
+      ".env"
+    ]
   }
 }

@@ -8,6 +8,12 @@ on:
   release:
     types: [created]
 
+# Default to read permissions
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
 jobs:
   test:
     name: Test
@@ -33,20 +39,25 @@ jobs:
       env:
         NODE_ENV: test
 
-  publish-npm:
-    name: Publish to NPM
+  release:
+    name: Release
     needs: test
-    if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     
     permissions:
-      contents: read
+      contents: write
+      issues: write
+      pull-requests: write
       packages: write
     
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: Use Node.js
+    - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18.x'
@@ -55,7 +66,8 @@ jobs:
     - name: Install Dependencies
       run: npm ci
       
-    - name: Publish to NPM
-      run: npm publish --access public
+    - name: Run Semantic Release
       env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run: npx semantic-release

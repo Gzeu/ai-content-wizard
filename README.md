@@ -15,6 +15,16 @@ A high-performance CLI tool for AI-powered content generation using Groq's ultra
 - 🔒 **Secure** - Environment-based API key management
 - 📦 **Easy to Use** - Simple CLI interface with intuitive commands
 
+## 📖 Table of Contents
+- [Features](#-features)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [API Reference](#-api-reference)
+- [Configuration](#-configuration)
+- [Examples](#-examples)
+- [Contributing](#-contributing)
+- [License](#-license)
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -68,17 +78,176 @@ ai-wizard --help
 
 ## 🔧 Configuration
 
-Edit the `.env` file to configure default settings:
+### Environment Variables
+
+Create a `.env` file in your project root with the following variables:
 
 ```env
+# Required: Your Groq API key
 GROQ_API_KEY=your_api_key_here
+
+# Optional: Default model to use (llama3-8b-8192 or llama3-70b-8192)
+DEFAULT_MODEL=llama3-8b-8192
+
+# Optional: Default temperature (0.0 to 1.0)
 TEMPERATURE=0.7
+
+# Optional: Maximum number of tokens to generate
 MAX_TOKENS=2048
+
+# Optional: Enable debug mode (true/false)
+DEBUG=false
+```
+
+## 📚 API Reference
+
+### Groq Class
+
+The main class for interacting with the Groq API.
+
+#### Constructor
+```javascript
+const groq = new Groq({
+  apiKey: 'your-api-key',  // Required
+  model: 'llama3-8b-8192', // Optional, default: 'llama3-8b-8192'
+  temperature: 0.7,        // Optional, default: 0.7
+  maxTokens: 2048          // Optional, default: 2048
+});
+```
+
+#### Methods
+
+##### `generateContent(prompt, options)`: `Promise<string>`
+Generates content based on the given prompt.
+
+**Parameters:**
+- `prompt` (string): The input prompt
+- `options` (object): Optional overrides
+  - `model` (string): Model to use
+  - `temperature` (number): 0.0 to 1.0
+  - `maxTokens` (number): Maximum tokens to generate
+
+**Returns:** `Promise<string>` - Generated content
+
+**Example:**
+```javascript
+const content = await groq.generateContent('Hello, world!', {
+  temperature: 0.9,
+  maxTokens: 500
+});
+```
+
+##### `listModels()`: `string[]`
+Returns an array of available model names.
+
+**Returns:** `string[]` - Array of model names
+
+**Example:**
+```javascript
+const models = groq.listModels();
+console.log(models); // ['llama3-8b-8192', 'llama3-70b-8192']
+```
+
+## 🚀 Examples
+
+### Basic Usage
+```javascript
+const { Groq } = require('ai-content-wizard');
+
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY
+});
+
+async function generateResponse() {
+  try {
+    const response = await groq.generateContent(
+      'Write a short story about a robot'
+    );
+    console.log(response);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+generateResponse();
+```
+
+### Advanced Usage with Options
+```javascript
+const { Groq } = require('ai-content-wizard');
+
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+  model: 'llama3-70b-8192', // Use the larger model
+  temperature: 0.9,         // More creative responses
+  maxTokens: 1000           // Longer responses
+});
+
+async function generateCreativeContent() {
+  const response = await groq.generateContent(
+    'Write a creative product description for a smartwatch',
+    {
+      temperature: 0.8,
+      maxTokens: 300
+    }
+  );
+  console.log(response);
+}
+
+generateCreativeContent();
+```
+
+### CLI Usage Examples
+
+#### Basic Generation
+```bash
+# Generate content with default settings
+ai-wizard generate "Write a poem about AI"
+
+# Use a specific model
+ai-wizard generate --model llama3-70b-8192 "Explain quantum computing"
+
+# Adjust creativity (0.0 to 1.0)
+ai-wizard generate --temperature 0.9 "Write a creative story"
+
+# Limit response length
+ai-wizard generate --max-tokens 500 "Summarize this article: [paste article]"
+```
+
+#### List Available Models
+```bash
+ai-wizard models
 ```
 
 ## 📚 Documentation
 
 For detailed documentation, please refer to the [Wiki](https://github.com/Gzeu/ai-content-wizard/wiki).
+
+## 🚀 Release Process
+
+This project uses [semantic-release](https://semantic-release.gitbook.io/semantic-release/) for automated version management and package publishing. The release process is fully automated through GitHub Actions.
+
+### How It Works
+
+1. **Commit Messages**: Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for commit messages.
+   - `feat:` A new feature (triggers a minor version bump)
+   - `fix:` A bug fix (triggers a patch version bump)
+   - `docs:` Documentation only changes
+   - `style:` Changes that do not affect the meaning of the code
+   - `refactor:` A code change that neither fixes a bug nor adds a feature
+   - `perf:` A code change that improves performance
+   - `test:` Adding missing tests or correcting existing tests
+   - `chore:` Changes to the build process or auxiliary tools
+
+2. **Automatic Versioning**: When code is pushed to the `main` branch, semantic-release will:
+   - Analyze commit messages
+   - Determine the next version number
+   - Generate release notes
+   - Create a git tag
+   - Publish to npm
+   - Create a GitHub release
+
+3. **Manual Releases**: To manually trigger a release, create a new release in the GitHub UI.
 
 ## 🤝 Contributing
 
