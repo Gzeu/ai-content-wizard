@@ -1,4 +1,14 @@
 const https = require('https');
+const path = require('path');
+const fs = require('fs');
+
+// Load environment variables from .env.test in test environment
+if (process.env.NODE_ENV === 'test') {
+  const envPath = path.resolve(__dirname, '..', '.env.test');
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+  }
+}
 
 class AIProvider {
   constructor() {
