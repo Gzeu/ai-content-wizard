@@ -1,15 +1,19 @@
-# 🚀 AI Content Wizard
+# 🧙‍♂️ AI Content Wizard
 
-A powerful CLI tool for AI-powered content generation using Groq's high-performance inference API. Generate, analyze, and automate content creation with ease.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen)](https://nodejs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
+A high-performance CLI tool for AI-powered content generation using Groq's ultra-fast inference engine. Create, automate, and manage AI-generated content with ease.
 
 ## ✨ Features
 
-⚡ **Lightning-Fast AI** - Powered by Groq's ultra-fast inference engine
-🤖 **Multiple Models** - Support for various AI models (llama3-8b-8192, llama3-70b-8192)
-🔧 **Configurable** - Customize temperature, max tokens, and other parameters
-🐛 **Debugging** - Built-in debug mode for troubleshooting
-⏱️ **Reliable** - Configurable timeouts and error handling
-🔒 **Secure** - API key management via environment variables
+- ⚡ **Lightning Fast** - Leverage Groq's high-speed inference engine
+- 🤖 **Multiple Models** - Support for various AI models including llama3-8b-8192 and llama3-70b-8192
+- 🔧 **Fully Configurable** - Customize temperature, token limits, and more
+- 🐛 **Built-in Debugging** - Comprehensive debug mode for development
+- 🔒 **Secure** - Environment-based API key management
+- 📦 **Easy to Use** - Simple CLI interface with intuitive commands
 
 ## 🚀 Quick Start
 
@@ -20,34 +24,73 @@ A powerful CLI tool for AI-powered content generation using Groq's high-performa
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Gzeu/ai-content-wizard.git
    cd ai-content-wizard
    ```
 
-2. Install dependencies:
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. Set up your environment:
+3. **Configure environment**
    ```bash
    cp .env.example .env
    ```
    Edit `.env` and add your Groq API key.
 
-### Basic Usage
+## 🛠️ Usage
+
+### Basic Commands
 
 ```bash
-# Generate content
-node cli.js generate "Your prompt here"
+# Generate content with default settings
+node src/cli.js generate "Your prompt here"
 
 # Generate with custom parameters
-node cli.js generate --temperature 0.9 --max-tokens 500 "Your prompt"
+node src/cli.js generate --temperature 0.9 --max-tokens 500 "Your prompt"
 
 # List available models
-node cli.js models
+node src/cli.js models
+
+# Get help
+node src/cli.js --help
+```
+
+### Available Models
+
+- `llama3-8b-8192`: Fast and efficient for most tasks (default)
+- `llama3-70b-8192`: More powerful but slower
+
+## 🔧 Configuration
+
+Edit the `.env` file to configure default settings:
+
+```env
+GROQ_API_KEY=your_api_key_here
+TEMPERATURE=0.7
+MAX_TOKENS=2048
+```
+
+## 📚 Documentation
+
+For detailed documentation, please refer to the [Wiki](https://github.com/Gzeu/ai-content-wizard/wiki).
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with ❤️ using [Groq](https://groq.com/)
+- Inspired by the need for fast, reliable AI content generation
+- Thanks to all contributors who have helped improve this project
 ```
 
 ## 🔧 Configuration
