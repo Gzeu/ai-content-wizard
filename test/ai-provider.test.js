@@ -1,8 +1,9 @@
 const { expect } = require('chai');
-const AIProvider = require('../ai-provider');
-
-// Mock the actual API calls to avoid hitting the real API during tests
 const sinon = require('sinon');
+const https = require('https');
+
+// Import the AIProvider instance
+const AIProvider = require('../ai-provider');
 
 // Import and run the test setup
 require('./setup')();
@@ -10,40 +11,54 @@ require('./setup')();
 describe('AI Provider', () => {
   let sandbox;
   let originalApiKey;
+  let originalConfig;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-    // Store the original API key
+    // Store the original API key and config
     originalApiKey = process.env.GROQ_API_KEY;
+    originalConfig = { ...AIProvider.config };
+    
     // Set a test API key
     process.env.GROQ_API_KEY = 'test-key';
+    
     // Reset the instance for each test
-    Object.assign(AIProvider, {
+    AIProvider.config = {
       model: 'llama3-8b-8192',
       temperature: 0.7,
-      maxTokens: 100
-    });
+      max_tokens: 2048
+    };
   });
 
   afterEach(() => {
+    // Restore originals
+    process.env.GROQ_API_KEY = originalApiKey;
+    AIProvider.config = originalConfig;
     sandbox.restore();
   });
 
   describe('configuration', () => {
     it('should have default configuration', () => {
-      expect(AIProvider.model).to.equal('llama3-8b-8192');
-      expect(AIProvider.temperature).to.equal(0.7);
-      expect(AIProvider.maxTokens).to.equal(100);
+      expect(AIProvider.config.model).to.equal('llama3-8b-8192');
+      expect(AIProvider.config.temperature).to.equal(0.7);
+      expect(AIProvider.config.max_tokens).to.equal(2048);
     });
 
     it('should throw an error if no API key is provided', () => {
       delete process.env.GROQ_API_KEY;
-      expect(() => require('../ai-provider')).to.throw('GROQ_API_KEY is not properly configured in .env file.');
+      // Need to require a fresh instance to test the constructor
+      const createAIProvider = () => {
+        // Clear the module cache to force a fresh require
+        delete require.cache[require.resolve('../ai-provider')];
+        return require('../ai-provider');
+      };
+      expect(createAIProvider).to.throw('GROQ_API_KEY is not properly configured in .env file.');
     });
   });
 
-  describe('generateContent', () => {
+  describe('generateText', () => {
     it('should return a string response', async () => {
+      // Mock the actual API call
       const mockResponse = {
         choices: [{
           message: {
@@ -52,76 +67,86 @@ describe('AI Provider', () => {
         }]
       };
 
-      // Mock the callAPI method
-      const originalCallAPI = AIProvider.callAPI;
-      AIProvider.callAPI = sandbox.stub().resolves(mockResponse);
+      // Stub the https.request method
+      const requestStub = {
+        on: sandbox.stub(),
+        write: sandbox.stub(),
+        end: sandbox.stub()
+      };
+      
+      // Simulate successful response
+      requestStub.on.withArgs('response').yields({
+        statusCode: 200,
+        on: (event, callback) => {
+          if (event === 'data') {
+            callback(JSON.stringify(mockResponse));
+          }
+          if (event === 'end') {
+            callback();
+          }
+        }
+      });
+      
+      sandbox.stub(https, 'request').returns(requestStub);
 
-      try {
-        const response = await AIProvider.generateContent('Test prompt');
-        expect(response).to.be.a('string');
-        expect(response).to.equal('This is a test response');
-      } finally {
-        // Restore the original method
-        AIProvider.callAPI = originalCallAPI;
-      }
+      const response = await AIProvider.generateText('Test prompt');
+      expect(response).to.be.a('string');
+      expect(response).to.equal('This is a test response');
     });
 
     it('should throw an error if the API call fails', async () => {
-      // Mock the callAPI method to reject
-      const originalCallAPI = AIProvider.callAPI;
-      AIProvider.callAPI = sandbox.stub().rejects(new Error('API Error'));
+      // Stub the https.request method to simulate an error
+      const requestStub = {
+        on: sandbox.stub(),
+        write: sandbox.stub(),
+        end: sandbox.stub()
+      };
+      
+      // Simulate error
+      requestStub.on.withArgs('error').yields(new Error('API Error'));
+      
+      sandbox.stub(https, 'request').returns(requestStub);
 
-      try {
-        await expect(AIProvider.generateContent('Test prompt'))
-          .to.be.rejectedWith('API Error');
-      } finally {
-        // Restore the original method
-        AIProvider.callAPI = originalCallAPI;
-      }
+      await expect(AIProvider.generateText('Test prompt'))
+        .to.be.rejectedWith('API Error');
     });
   });
 
-  describe('listModels', () => {
-    it('should return an array of available models', () => {
-      const models = AIProvider.listModels();
-      expect(models).to.be.an('array');
-      expect(models).to.include('llama3-8b-8192');
-      expect(models).to.include('llama3-70b-8192');
-    });
-  });
+  describe('model validation', () => {
+    it('should accept valid models', async () => {
+      // Stub the actual API call
+      const requestStub = {
+        on: sandbox.stub(),
+        write: sandbox.stub(),
+        end: sandbox.stub()
+      };
+      
+      // Simulate successful response
+      requestStub.on.withArgs('response').yields({
+        statusCode: 200,
+        on: (event, callback) => {
+          if (event === 'data') {
+            callback(JSON.stringify({ choices: [{ message: { content: 'response' } }] }));
+          }
+          if (event === 'end') {
+            callback();
+          }
+        }
+      });
+      
+      sandbox.stub(https, 'request').returns(requestStub);
 
-  describe('setModel', () => {
-    it('should set the model if it exists', () => {
-      const originalModel = AIProvider.model;
-      try {
-        AIProvider.setModel('llama3-70b-8192');
-        expect(AIProvider.model).to.equal('llama3-70b-8192');
-      } finally {
-        // Restore the original model
-        AIProvider.model = originalModel;
-      }
-    });
-
-    it('should throw an error if the model does not exist', () => {
-      expect(() => AIProvider.setModel('non-existent-model')).to.throw('Model not supported');
-    });
-  });
-
-  describe('setTemperature', () => {
-    it('should set the temperature within valid range', () => {
-      const originalTemp = AIProvider.temperature;
-      try {
-        AIProvider.setTemperature(0.5);
-        expect(AIProvider.temperature).to.equal(0.5);
-      } finally {
-        // Restore the original temperature
-        AIProvider.temperature = originalTemp;
-      }
+      // Test with valid model
+      AIProvider.config.model = 'llama3-70b-8192';
+      const response = await AIProvider.generateText('Test prompt');
+      expect(response).to.equal('response');
     });
 
-    it('should throw an error if temperature is out of range', () => {
-      expect(() => AIProvider.setTemperature(-1)).to.throw('Temperature must be between 0 and 2');
-      expect(() => AIProvider.setTemperature(2.1)).to.throw('Temperature must be between 0 and 2');
+    it('should reject invalid models', async () => {
+      // Test with invalid model
+      AIProvider.config.model = 'invalid-model';
+      await expect(AIProvider.generateText('Test prompt'))
+        .to.be.rejectedWith(`Invalid model: invalid-model. Valid models are: ${AIProvider.validModels.join(', ')}`);
     });
   });
 });
